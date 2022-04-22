@@ -309,7 +309,7 @@ class UserController extends Controller
         $validator = Validator($request->all(), [
             'fname' => 'required',
             'lname' => 'required',
-            'email' => 'required|email:rfc,dns',
+            'email' => 'required',
             'desi' => 'required',
             'pass' => 'required',
             'cpass' => 'required|same:pass',
@@ -329,35 +329,56 @@ class UserController extends Controller
                 'error' => $validator->errors()->all()
             ]);
         }
+        $user_id = $request->input('user_id');
+        $insert_data = [
+            'fname' => $request->input('fname'),
+            'lname' => $request->input('lname'),
+            'email' => $request->input('email'),
+            'pass' => $request->input('pass'),
+            'designation' => $request->input('desi')
+        ];
 
-//        $request
-        $fname = $request->input('fname');
-        $lname = $request->input('lname');
-        $email = $request->input('email');
-        $pass = $request->input('pass');
-        $cpass = $request->input('cpass');
+        if($user_id == '' )
+        {
+            //  for insert
 
-        $qry = DB::insert('insert into users (fname, lname, email, pass) values (?, ?, ?, ?)', [$fname, $lname,$email,$pass]);
-        if ($qry){
-            return response()->json(['success' => 'Post created successfully.']);
+            if (DB::table('users')->insert($insert_data)){
+                return response()->json(['success' => 'Post created successfully.']);
 
+            }else{
+                return response()->json(['error' => 'Connection error!']);
+            }
         }else{
-            return response()->json(['error' => 'Please enter same password.']);
+//  for update
+
+            if (DB::table('users')->where('user_id', $user_id)->update($insert_data)){
+                return response()->json(['success' => 'User updated successfully.']);
+
+            }else{
+                return response()->json(['error' => 'Connection error!.']);
+            }
         }
+
+
     }
-    public function storeProject(Request $request)
+    public function storeEdit(Request $request)
     {
         $validator = Validator($request->all(), [
-            'projects_name' => 'required',
-            'projects_start' => 'required',
-            'projects_end' => 'required',
-            'user_name' => 'required',
+            'fname' => 'required',
+            'lname' => 'required',
+            'email' => 'required|email:rfc,dns',
+            'desi' => 'required',
+//            'pass' => 'required',
+//            'cpass' => 'required|same:pass',
         ],
             [
-                'projects_name.required' => 'Project Name is required field!',
-                'projects_start.required' => 'Start Date is required field!',
-                'projects_end.required' => 'End Date is required field!',
-                'user_name.required' => 'Please select User!',
+                'fname.required' => 'First Name is required field!',
+                'email.required' => 'Email is required field!',
+                'lname.required' => 'Last Name is required field!',
+                'desi.required' => 'Please select designation!',
+                'pass.required' => 'Password is required field!',
+//                'cpass.required' => 'Confirm password is required field!',
+//                'cpass.same' => 'Password & confirm password must match!'
             ]);
 
         if ($validator->fails()) {
@@ -367,18 +388,83 @@ class UserController extends Controller
         }
 
 //        $request
-        $projects_name = $request->input('projects_name');
-        $projects_start = $request->input('projects_start');
-        $projects_end = $request->input('projects_end');
-        $user_name = $request->input('user_name');
+        $fname = $request->input('fname');
+        $fname = $request->input('fname');
+        $lname = $request->input('lname');
+        $email = $request->input('email');
+        $pass = $request->input('pass');
+        $cpass = $request->input('cpass');
+        $desi = $request->input('desi');
+        $user_id = $request->input('user_id');
 
-        $qry = DB::insert('insert into projects (projects_name, project_start, project_end, users_id) values (?, ?, ?, ?)', [$projects_name, $projects_start, $projects_end, $user_name]);
+        $qry = DB::insert('insert into users (fname, lname, email, pass,designation) values (?, ?, ?, ?,?)', [$fname, $lname,$email,$pass,$desi]);
+
+        $qry = DB::table('users')
+            ->where('id', 1)
+            ->update(['votes' => 1]);
         if ($qry){
             return response()->json(['success' => 'Post created successfully.']);
 
         }else{
             return response()->json(['error' => 'Please enter same password.']);
         }
+    }
+    public function storeProject(Request $request)
+    {
+
+
+        $validator = Validator($request->all(), [
+            'projects_name' => 'required',
+            'projects_start' => 'required',
+            'projects_end' => 'required',
+            'user_name' => 'required',
+            'project_status' => 'required',
+        ],
+            [
+                'projects_name.required' => 'Project Name is required field!',
+                'projects_start.required' => 'Start Date is required field!',
+                'projects_end.required' => 'End Date is required field!',
+                'user_name.required' => 'Please select User!',
+                'project_status.required' => 'Please select Project!',
+            ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors()->all()
+            ]);
+        }
+
+//        $request
+        $project_id = $request->input('project_id');
+        $insert_data=[
+            'projects_name'=>$request->input('projects_name'),
+            'project_start'=>$request->input('projects_start'),
+            'project_end'=>$request->input('projects_end'),
+            'users_id'=>$request->input('user_name'),
+            'project_status'=>$request->input('project_status')
+        ];
+
+        if($project_id == '' )
+        {
+            //  for insert
+
+            if (DB::table('projects')->insert($insert_data)){
+                return response()->json(['success' => 'Post created successfully.']);
+
+            }else{
+                return response()->json(['error' => 'Connection error!']);
+            }
+        }else{
+//  for update
+
+            if (DB::table('projects')->where('project_id', $project_id)->update($insert_data)){
+                return response()->json(['success' => 'User updated successfully.']);
+
+            }else{
+                return response()->json(['error' => 'Connection error!.']);
+            }
+        }
+
     }
     public function storeTask(Request $request)
     {
@@ -404,18 +490,88 @@ class UserController extends Controller
         }
 
 //        $request
-        $tasks_name = $request->input('tasks_name');
-        $tasks_start = $request->input('tasks_start');
-        $tasks_end = $request->input('tasks_end');
-        $users_name = $request->input('users_name');
-        $tasks_remark = $request->input('tasks_remark');
+        $task_id = $request->input('task_id');
+        $insert_data=[
+            'tasks_name'=>$request->input('tasks_name'),
+            'tasks_start'=>$request->input('tasks_start'),
+            'tasks_end'=>$request->input('tasks_end'),
+            'users_id'=>$request->input('users_name'),
+            'task_status'=>$request->input('task_status'),
+            'tasks_remark'=>$request->input('tasks_remark')
+        ];
 
-        $qry = DB::insert('insert into tasks (tasks_name, tasks_start, tasks_end, users_id, tasks_remark) values (?, ?, ?, ?,?)', [$tasks_name, $tasks_start, $tasks_end, $users_name, $tasks_remark]);
-        if ($qry){
-            return response()->json(['success' => 'Post created successfully.']);
+        if($task_id == '' )
+        {
+            //  for insert
 
+            if (DB::table('tasks')->insert($insert_data)){
+                return response()->json(['success' => 'Post created successfully.']);
+
+            }else{
+                return response()->json(['error' => 'Connection error!']);
+            }
         }else{
-            return response()->json(['error' => 'Please enter same password.']);
+//  for update
+
+            if (DB::table('tasks')->where('tasks_id', $task_id)->update($insert_data)){
+                return response()->json(['success' => 'User updated successfully.']);
+
+            }else{
+                return response()->json(['error' => 'Connection error!.']);
+            }
         }
+    }
+    public function UserDetails(Request $request)
+    {
+        $id = $request->input('id');
+
+        $users = DB::table('users')
+            ->select('*')
+            ->where('user_id', $id)
+            ->get();
+
+        if(count($users) >0)
+        {
+            return response()->json(['type'=> 'success', 'users'=>$users]);
+        }else{
+            return response()->json(['type'=> 'error', 'msg'=> 'DB Connection Error!']);
+        }
+
+    }
+    public function projectDetails(Request $request)
+    {
+        $id = $request->input('id');
+
+        $projects = DB::table('projects')
+            ->join('users', 'users.user_id', '=', 'projects.users_id')
+            ->select('*')
+            ->where('project_id', $id)
+            ->get();
+
+        if(count($projects) >0)
+        {
+            return response()->json(['type'=> 'success', 'projects'=>$projects]);
+        }else{
+            return response()->json(['type'=> 'error', 'msg'=> 'DB Connection Error!']);
+        }
+
+    }
+    public function taskDetails(Request $request)
+    {
+        $id = $request->input('id');
+
+        $tasks = DB::table('tasks')
+            ->join('users', 'users.user_id', '=', 'tasks.users_id')
+            ->select('*')
+            ->where('tasks_id', $id)
+            ->get();
+
+        if(count($tasks) >0)
+        {
+            return response()->json(['type'=> 'success', 'tasks'=>$tasks]);
+        }else{
+            return response()->json(['type'=> 'error', 'msg'=> 'DB Connection Error!']);
+        }
+
     }
 }

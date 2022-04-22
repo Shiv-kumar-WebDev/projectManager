@@ -43,7 +43,7 @@
                 <!-- Page Heading -->
                 <div class="d-flex justify-content-between p-2 align-items-center">
                     <h1 class="h3 mb-2 text-gray-800">Users</h1>
-                    <a href="" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal">Add New</a>
+                    <button type="button" class="btn btn-info btn-sm" id="newUser" >Add New</button>
                 </div>
                 <!-- DataTales Example -->
                 <div class="card shadow mb-4">
@@ -78,7 +78,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal">Edit</a>
+                                            <button type="button" class="btn btn-primary btn-sm EditUser" value="{{ $row->user_id  }}">Edit</button>
                                             <a href="{{ url('/delete/'. $row->user_id) }}" class="btn btn-danger btn-sm">Delete</a>
                                         </td>
                                     </tr>
@@ -115,6 +115,7 @@
                     <div class="msg-success" ></div>
                     <div class="modal-body">
                         <div class="form-group row">
+                            <input type="hidden" id="user_id" value="">
                             <div class="col-sm-6 mb-3 mb-sm-0">
                                 <input name="fname" type="text" class="form-control form-control-user" id="fname"
                                        placeholder="First Name">
@@ -131,9 +132,9 @@
                         <div class="form-group">
                             <select name="desi" type="text" class="form-control form-control-user" id="desi">
                                 <option value="">Select Designation</option>
-                                <option value="abc">abc</option>
-                                <option value=""></option>
-                                <option value=""></option>
+                                <option value="PHP Developer">PHP Developer</option>
+                                <option value="Desginer">Desginer</option>
+                                <option value="SEO">SEO </option>
                             </select>
                         </div>
                         <div class="form-group row">
@@ -187,8 +188,21 @@
         }
     });
 
-    $(".btn-submit").click(function(e){
+    $('#newUser').click(function () {
+        $("#fname").val('');
+        $("#lname").val('');
+        $("#email").val('');
+        $("#desi").val('');
+        $("#user_id").val('');
+        $("#pass").val('');
+        $("#cpass").val('');
 
+        $('#exampleModal').modal('show');
+    });
+
+
+    //New User
+    $(".btn-submit").click(function(e){
         e.preventDefault();
 
         var fname = $("#fname").val();
@@ -197,11 +211,45 @@
         var desi = $("#desi").val();
         var pass = $("#pass").val();
         var cpass = $("#cpass").val();
+        var user_id = $("#user_id").val();
 
         $.ajax({
             type:'POST',
             url:"{{ url('/addUser') }}",
-            data:{"_token": "{{ csrf_token() }}",fname:fname, lname:lname, email:email, desi:desi, pass:pass, cpass:cpass},
+            data:{"_token": "{{ csrf_token() }}",fname:fname, lname:lname, email:email, desi:desi, pass:pass, cpass:cpass, user_id:user_id},
+            success:function(data){
+                // console.log(data);
+                // return false;
+
+                if($.isEmptyObject(data.error)){
+                    $('.msg-success').html('<div class="alert alert-success">' +data.success+ '</div>');
+                    location.reload();
+                }else{
+                    printErrorMsg(data.error);
+                }
+            }
+        });
+
+    });
+
+
+    //Edit User
+    $(".btn-edit").click(function(e){
+        e.preventDefault();
+
+        var fname = $("#fname").val();
+        var lname = $("#lname").val();
+        var email = $("#email").val();
+        var desi = $("#desi").val();
+        var pass = $("#pass").val();
+        var cpass = $("#cpass").val();
+        var user_id = $("#user_id").val();
+
+
+        $.ajax({
+            type:'POST',
+            url:"{{ url('/addEdit') }}",
+            data:{"_token": "{{ csrf_token() }}",fname:fname, lname:lname, email:email, desi:desi, pass:pass, cpass:cpass, user_id:user_id },
             success:function(data){
                 if($.isEmptyObject(data.error)){
                     // alert(data.success);
@@ -222,6 +270,37 @@
             $(".print-error-msg").find("ul").append('<li>'+value+'</li>');
         });
     }
+
+
+    //User Details
+    $(".EditUser").click(function(e){
+        e.preventDefault();
+        var id = $(this).val();
+        $.ajax({
+            type:'POST',
+            url:"{{ url('/UserDetails') }}",
+            data:{"_token": "{{ csrf_token() }}", id:id},
+            success:function(data){
+                console.log(data);
+
+                if($(data.type == 'success')){
+
+
+                    $("#fname").val(data.users[0].fname);
+                    $("#lname").val(data.users[0].lname);
+                    $("#email").val(data.users[0].email);
+                    $("#desi").val(data.users[0].designation);
+                    $("#user_id").val(id);
+
+                    $('#exampleModal').modal('show');
+
+                }else{
+                    alert(data.msg);
+                }
+            }
+        });
+
+    });
 
 </script>
 

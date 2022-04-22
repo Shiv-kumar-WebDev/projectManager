@@ -43,8 +43,8 @@
                 <!-- Page Heading -->
                 <div class="d-flex justify-content-between p-2 align-items-center">
                     <h1 class="h3 mb-2 text-gray-800">Projects</h1>
-                    <a href="" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal">Add
-                        Projects</a>
+                    <button type="button" class="btn btn-info btn-sm" id="newProject">Add
+                        Project</button>
                 </div>
                 <!-- DataTales Example -->
                 <div class="card shadow mb-4">
@@ -70,19 +70,12 @@
                                         <td>{{ $row->projects_name }}</td>
                                         <td>{{ $row->project_start }}</td>
                                         <td>{{ $row->project_end }}</td>
-                                        <td>{{ $row->email }}</td>
+                                        <td>{{ $row->fname }} ({{  $row->email }})</td>
+                                        <td>{{ $row->project_status }}</td>
                                         <td>
-                                            @if($row->project_status ==0)
-                                                <a href="{{ url('/projectStatusUpdate/'. $row->project_id.'/'.$row->project_status) }}"
-                                                   class="btn btn-warning btn-sm">Inactive</a>
-                                            @else
-                                                <a href="{{ url('/projectStatusUpdate/'. $row->project_id.'/'.$row->project_status) }}"
-                                                   class="btn btn-success btn-sm">Active</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="" class="btn btn-primary btn-sm" data-toggle="modal"
-                                               data-target="#exampleModal">Edit</a>
+                                            <button type="button" class="btn btn-primary btn-sm EditProject" value="{{ $row->project_id  }}">Edit</button>
+{{--                                            <a href="" class="btn btn-primary btn-sm" data-toggle="modal"--}}
+{{--                                               data-target="#exampleModal">Edit</a>--}}
                                             <a href="{{ url('/deleteProject/'. $row->project_id) }}"
                                                class="btn btn-danger btn-sm">Delete</a>
                                         </td>
@@ -119,6 +112,7 @@
 
                     <div class="msg-success"></div>
                     <div class="modal-body">
+                        <input type="hidden" id="project_id" value="">
                         <div class="form-group">
                             <input name="projects_name" type="text" class="form-control form-control-user"
                                    id="projects_name"
@@ -138,11 +132,20 @@
                         </div>
 
                         <div class="form-group">
-                            <select name="desi" type="text" class="form-control form-control-user" id="user_name">
+                            <select name="user_name" type="text" class="form-control form-control-user" id="user_name">
                                 <option value="">Select User</option>
                                 @foreach ($users as $row)
                                     <option value="{{ $row->user_id }}">{{ $row->email }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select name="project_status" type="text" class="form-control form-control-user" id="project_status">
+                                <option value="">Select Project Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In Process">In Process</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
                     </div>
@@ -186,6 +189,16 @@
         }
     });
 
+    $('#newProject').click(function () {
+        $("#projects_name").val('');
+        $("#projects_start").val('');
+        $("#projects_end").val('');
+        $("#user_name").val('');
+        $("#property_id").val('');
+
+        $('#exampleModal').modal('show');
+    });
+
     $(".btn-submit").click(function (e) {
 
         e.preventDefault();
@@ -194,6 +207,9 @@
         var projects_start = $("#projects_start").val();
         var projects_end = $("#projects_end").val();
         var user_name = $("#user_name").val();
+        var project_status = $("#project_status").val();
+        var project_id = $("#project_id").val();
+
 
         $.ajax({
             type: 'POST',
@@ -203,9 +219,12 @@
                 projects_name: projects_name,
                 projects_start: projects_start,
                 projects_end: projects_end,
-                user_name: user_name
+                user_name: user_name,
+                project_status: project_status,
+                project_id:project_id
             },
             success: function (data) {
+
                 if ($.isEmptyObject(data.error)) {
                     // alert(data.success);
                     $('.msg-success').html('<div class="alert alert-success">' + data.success + '</div>');
@@ -226,6 +245,37 @@
         });
     }
 
+    $(".EditProject").click(function(e){
+        e.preventDefault();
+        // console.log('hi');
+        var id = $(this).val();
+        // alert(id);return false;
+        $.ajax({
+            type:'POST',
+            url:"{{ url('/projectDetails') }}",
+            data:{"_token": "{{ csrf_token() }}", id:id},
+            success:function(data){
+                // console.log(data);
+
+                if($(data.type == 'success')){
+
+                    $("#projects_name").val(data.projects[0].projects_name);
+                    $("#projects_start").val(data.projects[0].project_start);
+                    $("#projects_end").val(data.projects[0].project_end);
+                    $("#user_name").val(data.projects[0].user_id);
+                    $("#project_status").val(data.projects[0].project_status);
+                    $("#project_id").val(id);
+
+
+                    $('#exampleModal').modal('show');
+
+                }else{
+                    alert(data.msg);
+                }
+            }
+        });
+
+    });
 </script>
 
 </body>

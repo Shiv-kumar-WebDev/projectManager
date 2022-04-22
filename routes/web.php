@@ -39,6 +39,10 @@ Route::post('/registerData', [UserController::class, 'register']);
 Route::post('/updateUserDate', [UserController::class, 'updateUserDate']);
 Route::post('/changePasword', [UserController::class, 'changePasword']);
 Route::post('/addUser', [UserController::class, 'store']);
+Route::post('/addEdit', [UserController::class, 'storeEdit']);
 Route::post('/addProject', [UserController::class, 'storeProject']);
 Route::post('/addTask', [UserController::class, 'storeTask']);
+Route::post('/UserDetails', [UserController::class, 'UserDetails']);
+Route::post('/projectDetails', [UserController::class, 'projectDetails']);
+Route::post('/taskDetails', [UserController::class, 'taskDetails']);
 

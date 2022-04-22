@@ -43,8 +43,8 @@
                 <!-- Page Heading -->
                 <div class="d-flex justify-content-between p-2 align-items-center">
                     <h1 class="h3 mb-2 text-gray-800">Tasks</h1>
-                    <a href="" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal">Add
-                        Task</a>
+                    <button type="button" class="btn btn-info btn-sm" id="newTask">Add
+                        Task</button>
                 </div>
                 <!-- DataTales Example -->
                 <div class="card shadow mb-4">
@@ -71,20 +71,12 @@
                                         <td>{{ $row->tasks_name }}</td>
                                         <td>{{ $row->tasks_start }}</td>
                                         <td>{{ $row->tasks_end }}</td>
-                                        <td>{{ $row->email }}</td>
-                                        <td>
-                                            @if($row->task_status ==0)
-                                                <a href="{{ url('/taskStatusUpdate/'. $row->tasks_id.'/'.$row->task_status) }}"
-                                                   class="btn btn-warning btn-sm">Inactive</a>
-                                            @else
-                                                <a href="{{ url('/taskStatusUpdate/'. $row->tasks_id.'/'.$row->task_status) }}"
-                                                   class="btn btn-success btn-sm">Active</a>
-                                            @endif
-                                        </td>
+                                        <td>{{ $row->fname }} {{ $row->lname }}</td>
+                                        <td>{{ $row->task_status }}</td>
                                         <td>{{ $row->tasks_remark }}</td>
                                         <td>
-                                            <a href="" class="btn btn-primary btn-sm" data-toggle="modal"
-                                               data-target="#exampleModal">Edit</a>
+                                            <button type="button" class="btn btn-primary btn-sm EditTask" value="{{ $row->tasks_id  }}">Edit</button>
+
                                             <a href="{{ url('/deleteTask/'. $row->tasks_id) }}"
                                                class="btn btn-danger btn-sm">Delete</a>
                                         </td>
@@ -121,6 +113,7 @@
 
                     <div class="msg-success"></div>
                     <div class="modal-body">
+                        <input type="hidden" id="task_id" value="">
                         <div class="form-group">
                             <input name="tasks_name" type="text" class="form-control form-control-user"
                                    id="tasks_name"
@@ -145,6 +138,15 @@
                                 @foreach ($users as $row)
                                     <option value="{{ $row->user_id }}">{{ $row->email }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select name="task_status" type="text" class="form-control form-control-user" id="task_status">
+                                <option value="">Select Task Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In Process">In Process</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -193,6 +195,17 @@
         }
     });
 
+    $('#newTask').click(function () {
+        $("#tasks_name").val('');
+        $("#tasks_start").val('');
+        $("#tasks_end").val('');
+        $("#users_name").val('');
+        $("#task_status").val('');
+        $("#tasks_remark").val('');
+
+        $('#exampleModal').modal('show');
+    });
+
     $(".btn-submit").click(function (e) {
 
         e.preventDefault();
@@ -202,6 +215,9 @@
         var tasks_end = $("#tasks_end").val();
         var users_name = $("#users_name").val();
         var tasks_remark = $("#tasks_remark").val();
+        var task_status = $("#task_status").val();
+        var task_id = $("#task_id").val();
+
 
         $.ajax({
             type: 'POST',
@@ -212,7 +228,9 @@
                 tasks_start: tasks_start,
                 tasks_end: tasks_end,
                 users_name: users_name,
-                tasks_remark: tasks_remark
+                tasks_remark: tasks_remark,
+                task_status:task_status,
+                task_id:task_id
             },
             success: function (data) {
                 if ($.isEmptyObject(data.error)) {
@@ -234,7 +252,38 @@
             $(".print-error-msg").find("ul").append('<li>' + value + '</li>');
         });
     }
+    $(".EditTask").click(function(e){
+        e.preventDefault();
+        // console.log('hi');
+        var id = $(this).val();
+        // alert(id);return false;
+        $.ajax({
+            type:'POST',
+            url:"{{ url('/taskDetails') }}",
+            data:{"_token": "{{ csrf_token() }}", id:id},
+            success:function(data){
+                // console.log(data);
 
+                if($(data.type == 'success')){
+
+                    $("#tasks_name").val(data.tasks[0].tasks_name);
+                    $("#tasks_start").val(data.tasks[0].tasks_start);
+                    $("#tasks_end").val(data.tasks[0].tasks_end);
+                    $("#users_name").val(data.tasks[0].users_id);
+                    $("#tasks_remark").val(data.tasks[0].tasks_remark);
+                    $("#task_status").val(data.tasks[0].task_status);
+                    $("#task_id").val(id);
+
+
+                    $('#exampleModal').modal('show');
+
+                }else{
+                    alert(data.msg);
+                }
+            }
+        });
+
+    });
 </script>
 
 </body>
