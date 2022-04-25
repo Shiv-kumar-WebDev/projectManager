@@ -227,7 +227,7 @@ class UserController extends Controller
         $data['projects']= DB::table('projects')
             ->join('users', 'users.user_id', '=', 'projects.users_id')
             ->select('*')
-            ->orderBy('updated_at', 'desc')
+            ->orderBy('project_id', 'desc')
             ->get();
         $data['users'] = DB::table('users')
             ->select('*')
@@ -239,7 +239,7 @@ class UserController extends Controller
         $data['tasks']= DB::table('tasks')
             ->join('users', 'users.user_id', '=', 'tasks.users_id')
             ->select('*')
-            ->orderBy('updated_at', 'desc')
+            ->orderBy('tasks_id', 'desc')
             ->get();
         $data['users'] = DB::table('users')
             ->select('*')
