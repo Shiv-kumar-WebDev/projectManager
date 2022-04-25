@@ -45,4 +45,5 @@ Route::post('/addTask', [UserController::class, 'storeTask']);
 Route::post('/UserDetails', [UserController::class, 'UserDetails']);
 Route::post('/projectDetails', [UserController::class, 'projectDetails']);
 Route::post('/taskDetails', [UserController::class, 'taskDetails']);
+Route::get('/notification', [UserController::class, 'notification']);
 

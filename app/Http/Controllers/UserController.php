@@ -238,10 +238,14 @@ class UserController extends Controller
     {
         $data['tasks']= DB::table('tasks')
             ->join('users', 'users.user_id', '=', 'tasks.users_id')
+            ->join('projects', 'projects.project_id', '=', 'tasks.project_id')
             ->select('*')
             ->orderBy('tasks_id', 'desc')
             ->get();
         $data['users'] = DB::table('users')
+            ->select('*')
+            ->get();
+        $data['projects'] = DB::table('projects')
             ->select('*')
             ->get();
 //        var_dump($data['tasks']);exit;
@@ -473,6 +477,7 @@ class UserController extends Controller
             'tasks_start' => 'required',
             'tasks_end' => 'required',
             'users_name' => 'required',
+            'projects_name' => 'required',
             'tasks_remark' => 'required',
         ],
             [
@@ -480,6 +485,7 @@ class UserController extends Controller
                 'tasks_start.required' => 'Start Date is required field!',
                 'tasks_end.required' => 'End Date is required field!',
                 'users_name.required' => 'Please select User!',
+                'projects_name.required' => 'Please select Project!',
                 'tasks_remark.required' => 'Task Remark required!',
             ]);
 
@@ -496,6 +502,7 @@ class UserController extends Controller
             'tasks_start'=>$request->input('tasks_start'),
             'tasks_end'=>$request->input('tasks_end'),
             'users_id'=>$request->input('users_name'),
+            'project_id'=>$request->input('projects_name'),
             'task_status'=>$request->input('task_status'),
             'tasks_remark'=>$request->input('tasks_remark')
         ];
@@ -573,5 +580,12 @@ class UserController extends Controller
             return response()->json(['type'=> 'error', 'msg'=> 'DB Connection Error!']);
         }
 
+    }
+    public function notification(){
+        $projects = DB::table('projects')
+            ->select('project_start', 'project_end', 'projects_name')
+            ->get();
+        echo "<pre>";
+        print_r($projects);
     }
 }

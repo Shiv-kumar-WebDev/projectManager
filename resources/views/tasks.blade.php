@@ -56,6 +56,7 @@
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                 <tr>
+                                    <th>Project Name</th>
                                     <th>Task Name</th>
                                     <th>Task Start</th>
                                     <th>Task End</th>
@@ -68,6 +69,7 @@
                                 <tbody>
                                 @forelse ($tasks as $row)
                                     <tr>
+                                        <td>{{ $row->projects_name }}</td>
                                         <td>{{ $row->tasks_name }}</td>
                                         <td>{{ $row->tasks_start }}</td>
                                         <td>{{ $row->tasks_end }}</td>
@@ -132,6 +134,14 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <select name="projects_name" type="text" class="form-control form-control-user" id="projects_name">
+                                <option value="">Select Project</option>
+                                @foreach ($projects as $row)
+                                    <option value="{{ $row->project_id }}">{{ $row->projects_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-group">
                             <select name="users_id" type="text" class="form-control form-control-user" id="users_name">
                                 <option value="">Select User</option>
@@ -200,6 +210,7 @@
         $("#tasks_start").val('');
         $("#tasks_end").val('');
         $("#users_name").val('');
+        $("#projects_name").val('');
         $("#task_status").val('');
         $("#tasks_remark").val('');
 
@@ -213,6 +224,7 @@
         var tasks_name = $("#tasks_name").val();
         var tasks_start = $("#tasks_start").val();
         var tasks_end = $("#tasks_end").val();
+        var projects_name = $("#projects_name").val();
         var users_name = $("#users_name").val();
         var tasks_remark = $("#tasks_remark").val();
         var task_status = $("#task_status").val();
@@ -228,6 +240,7 @@
                 tasks_start: tasks_start,
                 tasks_end: tasks_end,
                 users_name: users_name,
+                projects_name:projects_name,
                 tasks_remark: tasks_remark,
                 task_status:task_status,
                 task_id:task_id
@@ -270,6 +283,7 @@
                     $("#tasks_start").val(data.tasks[0].tasks_start);
                     $("#tasks_end").val(data.tasks[0].tasks_end);
                     $("#users_name").val(data.tasks[0].users_id);
+                    $("#projects_name").val(data.tasks[0].project_id);
                     $("#tasks_remark").val(data.tasks[0].tasks_remark);
                     $("#task_status").val(data.tasks[0].task_status);
                     $("#task_id").val(id);
